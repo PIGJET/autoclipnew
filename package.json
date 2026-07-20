@@ -1,0 +1,10 @@
+{
+  "name": "clipforge",
+  "version": "0.1.0",
+  "description": "ClipForge — livestream/VOD highlight clip review (frontend, mock data)",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve src",
+    "start": "npx serve src"
+  }
+}

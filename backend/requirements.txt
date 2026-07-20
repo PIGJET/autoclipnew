@@ -1,0 +1,4 @@
+yt-dlp
+chat-downloader
+fastapi
+uvicorn

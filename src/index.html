@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClipForge</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+  <!-- ================= LEFT SIDEBAR ================= -->
+  <aside class="panel sidebar" id="sidebar">
+    <div class="resize-handle" id="resizeLeft" title="Drag to resize &middot; double-click to reset"></div>
+    <nav class="tabs" id="sidebarTabs">
+      <button class="tab active" data-tab="library">Library</button>
+      <button class="tab" data-tab="queue">Queue</button>
+      <button class="tab" data-tab="settings">Settings</button>
+    </nav>
+
+    <div class="sidebar-body">
+      <!-- Library view -->
+      <div class="tab-view" data-view="library">
+        <div class="tree" id="fileTree"><!-- rendered by app.js --></div>
+      </div>
+      <!-- Queue view -->
+      <div class="tab-view hidden" data-view="queue">
+        <div class="queue-list" id="queueList"><!-- rendered by app.js --></div>
+      </div>
+      <!-- Settings view -->
+      <div class="tab-view hidden" data-view="settings">
+        <div class="settings">
+          <div class="settings-section">
+            <span class="label">Detection</span>
+            <div class="setting-row">
+              <span class="s-name">Sensitivity</span>
+              <input type="range" class="sens" id="sensSlider" min="0" max="1" step="0.01" value="0.72" />
+              <span class="mono setting-val" id="sensVal">0.72</span>
+            </div>
+            <div class="setting-row">
+              <span class="s-name">Min score</span>
+              <input type="text" class="mini-input mono" value="6.0" spellcheck="false" />
+            </div>
+          </div>
+          <div class="settings-section">
+            <span class="label">Captions</span>
+            <div class="setting-row">
+              <span class="s-name">Default style</span>
+              <select class="dark-select mono" id="capStyleSelect">
+                <option>bold-outline</option>
+                <option>clean</option>
+                <option>karaoke</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <span class="s-name">Default on</span>
+              <div class="toggle on" id="capDefaultToggle"><span class="knob"></span></div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <span class="label">Export</span>
+            <div class="setting-row">
+              <span class="s-name">Resolution</span>
+              <select class="dark-select mono">
+                <option>1080&times;1920</option>
+                <option>720&times;1280</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <span class="s-name">Bitrate</span>
+              <input type="text" class="mini-input mono" value="12 Mbps" spellcheck="false" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= CENTER CANVAS ================= -->
+  <main class="panel canvas" id="canvas">
+    <div class="toolbar">
+      <button class="icon-btn" id="playPauseBtn" title="Play / pause" aria-label="Play">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3l9 5-9 5V3z"/></svg>
+      </button>
+      <span class="source-name" id="sourceName">subathon_finale.mp4</span>
+      <span class="source-meta mono" id="sourceMeta">1920&times;1080 &middot; 4:01:22</span>
+      <span class="spacer"></span>
+      <button class="icon-btn" id="addVideoBtn" title="Add video" aria-label="Add video">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3.5v9M3.5 8h9" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" title="More" aria-label="More">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="13" cy="8" r="1.2"/></svg>
+      </button>
+    </div>
+
+    <div class="canvas-scroll">
+      <!-- Video preview -->
+      <div class="preview-wrap">
+        <div class="preview">
+          <button class="preview-play" aria-label="Play preview">
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="21" stroke="rgba(255,255,255,0.2)"/><path d="M18 14l13 8-13 8V14z" fill="rgba(255,255,255,0.85)"/></svg>
+          </button>
+          <div class="preview-strip">
+            <span class="mono preview-time">01:23:45 / 4:01:22</span>
+          </div>
+          <div class="preview-seek"><span class="preview-seek-fill" style="width:34%"></span></div>
+        </div>
+      </div>
+
+      <!-- Timeline heatmap -->
+      <section class="timeline-section">
+        <div class="section-head">
+          <span class="label">Detection Timeline</span>
+          <div class="legend mono">
+            <span class="legend-item"><i class="sw teal"></i>highlight score</span>
+            <span class="legend-item"><i class="sw coral"></i>chat/audio spike</span>
+          </div>
+        </div>
+        <div class="timeline-strip" id="timelineStrip">
+          <canvas id="timelineCanvas"></canvas>
+          <div class="tl-tooltip mono hidden" id="tlTooltip"></div>
+        </div>
+        <div class="time-ruler mono" id="timeRuler"><!-- ticks rendered by app.js --></div>
+      </section>
+
+      <!-- Clip candidates list -->
+      <section class="clips-section">
+        <div class="section-head">
+          <span class="label">Detected Clips</span>
+          <span class="mono section-count" id="clipCount">8 candidates &middot; 2 approved</span>
+        </div>
+        <div class="clip-list" id="clipList"><!-- rendered by app.js --></div>
+        <div class="hint-line mono">&#8593;&#8595; select &middot; A approve &middot; D discard</div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ================= RIGHT PANEL ================= -->
+  <aside class="panel inspector" id="inspector">
+    <div class="resize-handle" id="resizeRight" title="Drag to resize &middot; double-click to reset"></div>
+    <nav class="tabs" id="inspectorTabs">
+      <button class="tab active" data-tab="details">Details</button>
+      <button class="tab" data-tab="export">Export</button>
+    </nav>
+
+    <div class="inspector-body">
+      <!-- Details tab -->
+      <div class="tab-view" data-view="details" id="detailsView"><!-- rendered by app.js --></div>
+      <!-- Export tab -->
+      <div class="tab-view hidden" data-view="export" id="exportView"><!-- rendered by app.js --></div>
+    </div>
+  </aside>
+</div>
+
+<!-- Add video modal -->
+<div class="modal-overlay hidden" id="addModal">
+  <div class="modal">
+    <div class="modal-title">Add video</div>
+    <div class="drop-zone">Drop a recording or paste a stream URL</div>
+    <input type="text" class="modal-input mono" id="addModalInput" placeholder="https://twitch.tv/&hellip;" spellcheck="false" />
+    <div class="url-note hidden" id="urlNote"></div>
+    <div class="modal-actions">
+      <button class="btn" id="modalCancel">Cancel</button>
+      <button class="btn primary" id="modalAdd">Add</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
