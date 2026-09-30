@@ -62,7 +62,3 @@ npx serve src --listen 4173
 The UI automatically connects to the local API and stays in demo mode when the service is unavailable. Set `CLIPFORGE_LIMIT=1200` to cap processing during quick tests.
 
 See [`backend/README.md`](backend/README.md) for the endpoint contract, detection thresholds, and platform-specific behavior.
-
-## Video walkthrough
-
-> 🎬 **Coming soon** — reserved for an end-to-end VOD ingestion and review demo.
