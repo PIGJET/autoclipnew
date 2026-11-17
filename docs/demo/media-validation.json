@@ -1,0 +1,35 @@
+[
+  {
+    "file": "swim.mp4",
+    "duration": 30.0,
+    "width": 1280,
+    "height": 720,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "video_frames": 750,
+    "bytes": 15417315,
+    "transcript_characters": 475
+  },
+  {
+    "file": "bike.mp4",
+    "duration": 30.0,
+    "width": 1280,
+    "height": 720,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "video_frames": 750,
+    "bytes": 10398795,
+    "transcript_characters": 463
+  },
+  {
+    "file": "finish.mp4",
+    "duration": 27.0,
+    "width": 1280,
+    "height": 720,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "video_frames": 675,
+    "bytes": 8366304,
+    "transcript_characters": 165
+  }
+]

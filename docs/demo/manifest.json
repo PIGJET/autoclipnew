@@ -1,0 +1,281 @@
+{
+  "source_duration": 1389,
+  "clips": [
+    {
+      "id": "swim",
+      "title": "Swim battle",
+      "start": 136,
+      "end": 166,
+      "selection": "Editorial pick",
+      "manual": true,
+      "transcript": "actually from their pontoon picks that the men had to make, that Hayden Wilde is the only athlete in our top 10 who chose to start right over onto the right hand side of the pontoon and all the others who are on the left. I think you're right there with Meno, that distinctive stroke isn't it, of Meno. We've seen them at the front having so many of these T-100 races at this part of the race. Yeah, he's become very familiar with the front of the swim, he's led out a couple",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 6.56,
+          "text": "actually from their pontoon picks that the men had to make, that Hayden Wilde is the only"
+        },
+        {
+          "start": 6.56,
+          "end": 12.88,
+          "text": "athlete in our top 10 who chose to start right over onto the right hand side of the pontoon"
+        },
+        {
+          "start": 12.88,
+          "end": 14.88,
+          "text": "and all the others who are on the left."
+        },
+        {
+          "start": 14.88,
+          "end": 19.32,
+          "text": "I think you're right there with Meno, that distinctive stroke isn't it, of Meno."
+        },
+        {
+          "start": 19.32,
+          "end": 23.92,
+          "text": "We've seen them at the front having so many of these T-100 races at this part of the race."
+        },
+        {
+          "start": 23.92,
+          "end": 29.96,
+          "text": "Yeah, he's become very familiar with the front of the swim, he's led out a couple"
+        }
+      ],
+      "transcribed": true
+    },
+    {
+      "id": "bike",
+      "title": "Bike chase",
+      "start": 620,
+      "end": 650,
+      "selection": "Editorial pick",
+      "manual": true,
+      "transcript": "The only kind of slower section of the course, that's why the A-station is there and every single one of them it seemed did take Did take some nutrition on there and all of them back down in the bars and Kyle is swimming a little bit around There sort of zigzagging his way slightly through the athletes as they even out again Making his way back towards the front. Yeah, and Karl Smith just about getting in front of Rico Bogin who can free well for a little bit",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 6.44,
+          "text": "The only kind of slower section of the course, that's why the A-station is there and every single one of them it seemed did take"
+        },
+        {
+          "start": 7.0,
+          "end": 11.02,
+          "text": "Did take some nutrition on there and all of them back down in the bars"
+        },
+        {
+          "start": 11.68,
+          "end": 14.64,
+          "text": "and Kyle is swimming a little bit around"
+        },
+        {
+          "start": 15.52,
+          "end": 20.44,
+          "text": "There sort of zigzagging his way slightly through the athletes as they even out again"
+        },
+        {
+          "start": 21.24,
+          "end": 26.34,
+          "text": "Making his way back towards the front. Yeah, and Karl Smith just about getting in front of"
+        },
+        {
+          "start": 26.34,
+          "end": 29.78,
+          "text": "Rico Bogin who can free well for a little bit"
+        }
+      ],
+      "transcribed": true
+    },
+    {
+      "id": "finish",
+      "title": "Race finale",
+      "start": 1362,
+      "end": 1389,
+      "selection": "Automatic audio detection",
+      "manual": false,
+      "transcript": "And congratulations to head in World Out 2026 at T100 Dubai Champion and we'll see you in a few weeks. And we'll see you in Qatar in just under a month. Bye for now.",
+      "segments": [
+        {
+          "start": 0.11,
+          "end": 6.11,
+          "text": "And congratulations to head in World Out 2026 at T100 Dubai Champion and we'll see you in a few weeks."
+        },
+        {
+          "start": 6.11,
+          "end": 14.66,
+          "text": "And we'll see you in Qatar in just under a month. Bye for now."
+        }
+      ],
+      "transcribed": true
+    }
+  ],
+  "original_detection": {
+    "start": 1362,
+    "end": 1389,
+    "score": 6.0,
+    "state": "none",
+    "excerpt": "It doesn't really work out, it's relatively fat, so I think",
+    "transcript": "It doesn't really work out, it's relatively fat, so I think it's broken for sure. And congratulations to head in World Out 2026, a 2-100 Dubai Champion and we'll see you in a few weeks. And we'll see you in Qatar in just under a month, bye for now.",
+    "trigger": "And we'll see you in Qatar in just under a month, bye for now.",
+    "reason": "audio spike 1.4×",
+    "signal": "audio",
+    "signals": [
+      "audio"
+    ],
+    "id": "d1",
+    "transcribed": true
+  },
+  "timeline": {
+    "baseline": [
+      0.5616,
+      0.6288,
+      0.6523,
+      0.5003,
+      0.6439,
+      0.4574,
+      0.4485,
+      0.5884,
+      0.3759,
+      0.4946,
+      0.4386,
+      0.4578,
+      0.3492,
+      0.3422,
+      0.3641,
+      0.307,
+      0.3567,
+      0.3351,
+      0.3703,
+      0.3501,
+      0.3983,
+      0.365,
+      0.3426,
+      0.3503,
+      0.3127,
+      0.3392,
+      0.3723,
+      0.3341,
+      0.3716,
+      0.3429,
+      0.3065,
+      0.3599,
+      0.4844,
+      0.4914,
+      0.4229,
+      0.3279,
+      0.3389,
+      0.3599,
+      0.4018,
+      0.4269,
+      0.3893,
+      0.4072,
+      0.3854,
+      0.4966,
+      0.5845,
+      0.3884,
+      0.4398,
+      0.3654,
+      0.4066,
+      0.4021,
+      0.4195,
+      0.368,
+      0.4547,
+      0.4223,
+      0.3867,
+      0.3414,
+      0.3438,
+      0.5184,
+      0.4802,
+      0.4325,
+      0.4176,
+      0.3974,
+      0.4083,
+      0.4209,
+      0.316,
+      0.4177,
+      0.4934,
+      0.331,
+      0.3925,
+      0.3734,
+      0.0,
+      0.049,
+      0.3904,
+      0.4174,
+      0.3912,
+      0.4532,
+      0.4824,
+      0.3811,
+      0.3226,
+      0.5131,
+      0.4265,
+      0.4504,
+      0.5016,
+      0.5534,
+      0.4107,
+      0.4286,
+      0.2536,
+      0.423,
+      0.3826,
+      0.2019,
+      0.3693,
+      0.3521,
+      0.301,
+      0.379,
+      0.3816,
+      0.3418,
+      0.3743,
+      0.3925,
+      0.4062,
+      0.2993,
+      0.3316,
+      0.3643,
+      0.3707,
+      0.5249,
+      0.3929,
+      0.5077,
+      0.439,
+      0.4335,
+      0.3757,
+      0.4123,
+      0.4372,
+      0.4515,
+      0.4247,
+      0.4359,
+      0.4119,
+      0.3803,
+      0.4805,
+      0.4483,
+      0.4008,
+      0.3367,
+      0.2995,
+      0.4288,
+      0.4285,
+      0.3307,
+      0.3087,
+      0.2635,
+      0.2595,
+      0.3214,
+      0.3817,
+      0.4089,
+      0.3966,
+      0.4537,
+      0.4068,
+      0.5013,
+      0.3493,
+      0.4255,
+      0.3735,
+      0.4004,
+      0.4364,
+      0.5479
+    ],
+    "spikes": [
+      {
+        "idx": 138,
+        "val": 0.6061
+      },
+      {
+        "idx": 138,
+        "val": 0.8608
+      }
+    ]
+  }
+}
