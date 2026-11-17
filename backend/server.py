@@ -22,7 +22,7 @@ import threading
 import statistics
 from collections import Counter
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -664,6 +664,8 @@ def process(job, limit):
         duration = meta["duration"]
         if not duration or duration <= 0:
             raise RuntimeError("could not determine video duration")
+        # All signals and candidate/transcription windows use the same horizon.
+        horizon = min(duration, limit) if limit else duration
         timings["ingest"] = round(time.time() - t0, 1)
 
         # 2. DETECTING (chat / heatmap / comments) -----------------------
@@ -680,7 +682,7 @@ def process(job, limit):
         try:
             fine, coarse, msgs, count = collect_chat(job, platform, url, duration, limit)
             if count > 0:
-                chat_cands = score_candidates(fine, msgs, duration)
+                chat_cands = score_candidates(fine, msgs, horizon)
                 chat_coarse = coarse
                 if chat_cands:
                     cand_lists.append(chat_cands)
@@ -693,7 +695,10 @@ def process(job, limit):
         # --- replay heatmap (YouTube uploads) ---------------------------
         heat_tl = None
         if meta.get("heatmap"):
-            heat_cands, heat_tl = score_from_heatmap(meta["heatmap"], duration)
+            heatmap = [h for h in meta["heatmap"]
+                       if (h["start_time"] + h["end_time"]) / 2 < horizon]
+            heat_cands, _ = score_from_heatmap(heatmap, horizon)
+            _, heat_tl = score_from_heatmap(heatmap, duration)
             if heat_cands:
                 cand_lists.append(heat_cands)
                 signals_used.append("replay-heatmap")
@@ -702,7 +707,8 @@ def process(job, limit):
         if "chat" not in signals_used and platform == "youtube":
             try:
                 comments = fetch_comments(url)
-                com_cands, com_tl, nts = score_from_comments(comments, duration)
+                com_cands, _, nts = score_from_comments(comments, horizon)
+                _, com_tl, _ = score_from_comments(comments, duration)
                 if com_cands:
                     cand_lists.append(com_cands)
                     signals_used.append("comments")
@@ -730,7 +736,7 @@ def process(job, limit):
 
             envelope = rms_envelope(audio_url, limit=limit,
                                     progress_cb=audio_progress)
-            audio_cands, audio_peaks = score_audio_candidates(envelope, duration)
+            audio_cands, audio_peaks = score_audio_candidates(envelope, horizon)
             if audio_cands:
                 cand_lists.append(audio_cands)
                 signals_used.append("audio")
@@ -741,7 +747,7 @@ def process(job, limit):
         # --- fusion ------------------------------------------------------
         if not cand_lists:
             raise RuntimeError("no analyzable signals for this video")
-        candidates = fuse_candidates(cand_lists, duration)
+        candidates = fuse_candidates(cand_lists, horizon)
 
         # --- timeline: baseline priority chat > heatmap > audio ----------
         if chat_coarse is not None:
@@ -765,7 +771,7 @@ def process(job, limit):
             job["status"] = "transcribing"
             job["progress"] = 0.0
         if audio_url and candidates:
-            transcribe_candidates(job, audio_url, candidates, duration)
+            transcribe_candidates(job, audio_url, candidates, horizon)
         timings["transcribe"] = round(time.time() - t0, 1)
 
         with JOBS_LOCK:
@@ -788,14 +794,15 @@ def process(job, limit):
 # ------------------------------------------------------------------ routes ---
 
 @app.post("/api/ingest")
-def ingest(body: IngestBody, limit: int = 0):
+def ingest(body: IngestBody, limit: int = Query(default=0, ge=0)):
     platform = classify_url(body.url)
     if not platform:
         return {
             "error": "unsupported url — expected a youtube.com/watch, "
                      "youtu.be, or twitch.tv/videos URL",
         }
-    key = canonical_key(body.url, platform)
+    eff_limit = limit or DEFAULT_LIMIT
+    key = (canonical_key(body.url, platform), eff_limit)
     with JOBS_LOCK:
         existing = next((j for j in JOBS.values() if j.get("key") == key), None)
         if existing is not None and existing["status"] != "error":
@@ -806,10 +813,10 @@ def ingest(body: IngestBody, limit: int = 0):
 
     job = _new_job(body.url.strip(), platform)
     job["key"] = key
+    job["processing_limit"] = eff_limit
     with JOBS_LOCK:
         JOBS[job["id"]] = job
 
-    eff_limit = limit or DEFAULT_LIMIT
     t = threading.Thread(target=process, args=(job, eff_limit), daemon=True)
     t.start()
 
@@ -856,6 +863,7 @@ def get_video(video_id: str):
             "signal": job["signal"],
             "signals": job["signals"],
             "timings": job["timings"],
+            "processing_limit": job.get("processing_limit"),
             "warnings": {k: job[k] for k in
                          ("_chat_warn", "_comments_warn", "_audio_warn",
                           "_transcribe_warns") if k in job},

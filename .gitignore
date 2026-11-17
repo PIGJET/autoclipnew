@@ -10,7 +10,7 @@ build/
 src-tauri/target/
 
 # Python
-.venv/
+.venv*/
 venv/
 __pycache__/
 *.pyc

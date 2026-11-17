@@ -1,4 +1,11 @@
+# Exact versions from the verified Python 3.11 environment.
+-c requirements-lock.txt
 yt-dlp
 chat-downloader
 fastapi
 uvicorn
+requests
+imageio-ffmpeg==0.6.0
+faster-whisper==1.2.1
+# PyAV 19 removed the metadata_errors argument used by faster-whisper.
+av==16.1.0

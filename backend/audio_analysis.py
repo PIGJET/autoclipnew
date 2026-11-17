@@ -90,5 +90,12 @@ def extract_wav(audio_url, start, duration, out_path):
            "-ss", str(max(0, int(start))), "-t", str(int(duration)),
            "-i", audio_url, "-vn", "-ac", "1", "-ar", str(WAV_SR),
            out_path, "-y"]
-    subprocess.run(cmd, capture_output=True, timeout=300, check=True)
+    try:
+        subprocess.run(cmd, capture_output=True, timeout=300, check=True)
+    except subprocess.CalledProcessError as exc:
+        # Preserve the useful cause (HTTP/decoder/file error), not signed URLs.
+        detail = exc.stderr.decode("utf-8", errors="replace").replace(
+            audio_url, "<audio source>").strip()
+        raise RuntimeError("FFmpeg WAV extraction failed (exit %s): %s" %
+                           (exc.returncode, detail[-2000:])) from exc
     return out_path

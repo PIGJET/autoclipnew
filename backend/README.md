@@ -18,8 +18,9 @@ only lightweight data — video **metadata**, **chat replay**, and an
 From the project root (`autoclipnew/`):
 
 ```bat
-python -m venv backend\.venv
-backend\.venv\Scripts\pip install -r backend\requirements.txt
+py -3.11 -m venv backend\.venv
+backend\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+backend\.venv\Scripts\python.exe -m pip check
 ```
 
 Git Bash equivalent:
@@ -39,6 +40,15 @@ From the `backend/` directory:
 
 The frontend (`npx serve src`, served at http://localhost:4173) auto-detects the
 backend on load. If the backend is down, the UI stays in mock mode.
+Alternatively, from the repository root serve it without Node dependencies:
+`backend\.venv\Scripts\python.exe -m http.server 4173 --bind 127.0.0.1 --directory src`.
+Select the real title under Processed after the queue completes; the initial
+mock clips are not the result of ingestion.
+
+`requirements.txt` includes runtime FFmpeg/ASR packages and uses the tested
+versions in `requirements-lock.txt` as constraints. `av==16.1.0` is intentional:
+PyAV 19.0.2 rejects faster-whisper's `metadata_errors` argument. No global
+FFmpeg installation or extra test package is needed.
 
 ### Optional processing cap
 
@@ -49,8 +59,12 @@ either:
 - pass `?limit=<seconds>` on `POST /api/ingest`, or
 - set the env var `CLIPFORGE_LIMIT=<seconds>` before starting the server.
 
-Default is the **full VOD**. The cap applies to chat and the audio envelope;
-the heatmap / comment fallbacks ignore it (they are metadata-only).
+Default is the **full VOD**. The cap applies to chat, the audio envelope,
+candidate selection from every signal, and padded transcription windows.
+Heatmap/comments are still fetched as metadata, but candidates beyond the
+horizon are excluded. `duration` remains the full source duration for the UI
+timeline; detail responses include `processing_limit`. URL + effective limit
+form the deduplication key. Negative query limits return HTTP 422.
 
 ## API surface
 
@@ -141,8 +155,65 @@ If no signal yields candidates the job errors with
 - **ffmpeg** is project-local: the `imageio-ffmpeg` wheel ships a static binary
   inside the venv; `audio_analysis.py` resolves it via
   `imageio_ffmpeg.get_ffmpeg_exe()`. Nothing is installed system-wide.
-- **Whisper**: `faster-whisper` model `base` on CPU (`int8`). The model
-  (~74 MB) downloads to the Hugging Face cache on first use; the first
-  transcription after a server start also pays a ~2–10s model-load cost.
+- **Whisper**: `faster-whisper` model `base` on CPU (`int8`). The weights
+  (roughly 150 MB, plus supporting files) download from Hugging Face on first
+  transcription, not at startup or health check. The download requires network
+  access and a writable cache; allow extra time for it. Set `HF_HOME` before
+  starting the API to choose a cache directory. Subsequent runs use the cache;
+  each server process still loads the model once. Cache is separate from the
+  virtual environment.
 - Temporary candidate WAVs are written to `backend/.cache/` and deleted after
   transcription.
+
+## Repeatable verification
+
+From the repository root, with the API running on port 8971:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8971/api/health
+.\backend\.venv\Scripts\python.exe -m unittest discover -s backend -p test_smoke.py -v
+.\backend\.venv\Scripts\python.exe backend\verify_vod.py 'https://www.youtube.com/watch?v=UF8uR6Z6KLc' --limit 300 --output vod-result.json
+```
+
+The offline test starts an isolated loopback HTTP server, stubs platform
+metadata/chat/comments/audio resolution, generates a deterministic five-minute
+WAV with a 15-second loudness peak at 150s, submits an ingest job and polls it.
+Real FFmpeg decoding, RMS detection, scoring/fusion and 16 kHz candidate WAV
+extraction must yield exactly one candidate at 147–177s with a positive score.
+The ASR stub checks the extracted WAV and supplies labeled test text; no model
+or internet is used. A second 120s job must exclude the peak, including an
+out-of-window heatmap entry, and must not reuse the 300s job. This test does not
+verify real speech recognition or YouTube/Twitch access.
+
+`verify_vod.py` uses the real running API without stubs. It requires a complete
+job with at least one finite positive score, valid start/end within the cap,
+`transcribed: true`, and a nonempty transcript. It prints stage/progress and
+elapsed wall time, times out after 900s by default, and can save the full JSON
+response. `--api` and `--timeout` override those defaults. A repeated completed
+job is explicitly reported as reused; restart the server for fresh timing.
+FFmpeg extraction failures retain sanitized stderr in transcription warnings,
+so HTTP/decoder errors can be distinguished without printing signed media URLs.
+The offline suite also checks this failure diagnostic using a missing input.
+
+Verified November 16, 2026 on Windows / Python 3.11.18: the URL above, first
+300 seconds, fresh final run **44.61s**, four candidates, all four transcribed,
+no warnings. Best: **57–87s**, score **9.0**, transcript begins “no big deal,
+just three stories.” Signals: replay-heatmap. Actual audio analysis and Whisper
+ran against the public source; the browser displayed the same four API
+candidates and transcript after selecting the source title. An earlier clean
+model-cache run reported 56.3s across stages. One initial environment attempt
+failed during metadata DNS resolution; retrying with the managed interpreter
+completed successfully. Public media availability can change independently of
+the offline test.
+
+A second fresh environment created with `python -m venv` and installed using
+`python -m pip install -r backend/requirements.txt` passed `pip check`, health,
+both offline tests (3.063s before the diagnostic test was added; final suite
+8.997s), and real VOD verification in **80.91s** with **3/4 nonempty transcripts**.
+One candidate reported `ONNXRuntimeError: FAIL: bad allocation` while three
+verification servers had models loaded. An earlier attempt in that environment
+was correctly rejected by the verifier after all candidate FFmpeg extractions
+failed (exit 3436169992); fresh stream extraction and a new job then succeeded.
+Run one API process for the CPU demo; individual transcription warnings remain
+visible even when other candidates succeed. A complete status alone is not a
+speech-transcription pass.
